@@ -1,20 +1,35 @@
-###The worst climate events in the United States  
+---
+output: pdf_document
+---
+##The worst climate events in the United States  
 
 
 
-####Synopsis
+###Synopsis
 
 This study explores the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.  
 
 We will separate the analysis into two main lines: people and properties.  
 
-For people, we will tabulate FATALITIES and INJURIES against event type.  For tabulation purposes, we assume that one fatality equals 50 injuries.  
+For people, we will tabulate **fatalities** and **injuries** against event type.  For tabulation purposes, we assume that one fatality equals 50 injuries.  
 
-For properties, we will tabulate damages in properties and crops against event type.  
+For properties, we will tabulate damages in **properties** and **crops** against event type.  
 
-In the future, if we need to bind the two lines, it will be necessary to specify values to FATALITY and INJURY because the properties line is already monetized.  
+In the future, if we need to bind the two lines, it will be necessary to specify values to *fatality* and *injury* because the properties line is already monetized.  
 
-####Data Processing
+###Data Processing  
+
+The data for this assignment come in the form of a comma-separated-value file compressed via the bzip2 algorithm to reduce its size. You can download the file from the course web site:  
+
+https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2 [47Mb]  
+
+There is also some documentation of the database available. Here you will find how some of the variables are constructed/defined:  
+
+- National Weather Service Storm Data Documentation, at https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf and  
+
+- National Climatic Data Center Storm Events FAQ.  
+
+The events in the database start in the year 1950 and end in November 2011. In the earlier years of the database there are generally fewer events recorded, most likely due to a lack of good records. More recent years should be considered more complete.  
 
 
 ```r
@@ -63,15 +78,16 @@ str(stormdata)
 ##  $ REFNUM    : num  1 2 3 4 5 6 7 8 9 10 ...
 ```
 
-The first line: population.  
-No monetary values, but two unbalanced variables: fatalities and injuries.  
+The first line: **population**.  
+No monetary values, but two unbalanced variables: *fatalities* and *injuries*.  
 Then we determine that one fatality equals fifty injuries and made the calculations.  
 
 
 ```r
 library(data.table)
 library(reshape2)
-peopledata <- data.table(evtype=stormdata$EVTYPE, fatalities=stormdata$FATALITIES, injuries=stormdata$INJURIES)
+peopledata <- data.table(evtype=stormdata$EVTYPE, fatalities=stormdata$FATALITIES, 
+                         injuries=stormdata$INJURIES)
 summary(peopledata)
 ```
 
@@ -119,9 +135,9 @@ plot_peopledata
 ## 676             STRONG WIND        103      280    5430
 ```
 
-The second line: properties.  
-Monetary values: properties and crops.  
-The is one separation of figure and expoent, and the codification of the expoents is sometimes weird. As "B" are billions, "M" or "m" are millions and "K" are thousands, we normalized the values befores plotting.  
+The second line: **properties**.  
+Monetary values: *properties* and *crops*.  
+There is one kind of separation of mantissa and exponent, and the codification of the exponents is sometimes weird. As "B" are billions, "M" or "m" are millions, and "K" are thousands, we normalized these values befores plotting. Some values were missed, but do not impact the results, only billions matters.   
 
 
 ```r
@@ -181,25 +197,18 @@ plot_prcropdata
 ## 298 HEAVY RAIN/SEVERE WEATHER   2.500  0.000000   2.500
 ```
 
-*Note: There is one other problem not addressed in this study: the `EVTYPE` values are not normalized, so we have lots of types* **flood** *something, as have for* **wind**, *and as have for* **rain**, *etc. Crunch 985 types in 10 or 20 is a hard work and far from beyond the scope of this assignment.*   
+*Note: There is another problem not addressed in this study: the `EVTYPE` values are not normalized, so we have lots of types* **flood** *something, and* **wind**, *and* **rain**, *etc. Shrink the 985 types into 10 or 20 normalized types is a hard work and far from beyond the scope of this assignment.*   
 
-####Results
+###Results
 
 Answering the question: *Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?*  
 
 
 ```r
 library(ggplot2)
-```
-
-```
-## Find out what's changed in ggplot2 with
-## news(Version == "1.0.0", package = "ggplot2")
-```
-
-```r
-ggplot(plot_peopledata[1:5, ], aes(evtype, harmfac/1e3)) + geom_bar(stat = "identity") + ylab("Harm Factor (thousands, where fatality = 50 and injury = 1)") + 
-    xlab("Event Type") + ggtitle("Top Five Harmful Types of Climate Events for Population Across USA")
+ggplot(plot_peopledata[1:5, ], aes(evtype, harmfac/1e3)) + geom_bar(stat = "identity") + 
+    ylab("Harm Factor (thousands, where fatality = 50 and injury = 1)") + xlab("Event Type") +
+    ggtitle("Top Five Harmful Types of Climate Events for Population Across USA")
 ```
 
 ![plot of chunk plot_people](figure/plot_people.png) 
@@ -208,8 +217,11 @@ Answering the question: *Across the United States, which types of events have th
 
 
 ```r
-ggplot(plot_prcropdata[1:5, ], aes(evtype, damgfac)) + geom_bar(stat = "identity") + ylab("Economic Damages (billion dollars)") + 
-    xlab("Event Type") + ggtitle("Top Five Types of Climate Events Causing Economic Damages Across USA")
+ggplot(plot_prcropdata[1:5, ], aes(evtype, damgfac)) + geom_bar(stat = "identity") + 
+    ylab("Economic Damages (billion dollars)") + xlab("Event Type") + 
+    ggtitle("Top Five Types of Climate Events Causing Economic Damages Across USA")
 ```
 
 ![plot of chunk plot_properties](figure/plot_properties.png) 
+
+I believe in the adage "A picture is worth a thousand words". So, thats all folks!  
